@@ -108,8 +108,8 @@ module AssOle::AppExtensionTest
             spy.must_be_instance_of AssOle::AppExtension::Spy
             spy.exist?.must_equal true
             spy.name.must_match %r{TestExt8_3_(10|8)}i
-            spy.plugged.must_equal true if spy.name =~ %r{TestExt8_3_10}i
-            spy.plugged.must_equal false if spy.name =~ %r{TestExt8_3_8}i
+            spy.plugged?.must_equal true if spy.name =~ %r{TestExt8_3_10}i
+            spy.plugged?.must_equal false if spy.name =~ %r{TestExt8_3_8}i
           end
         ensure
           ext1.unplug! if ext1
@@ -120,9 +120,10 @@ module AssOle::AppExtensionTest
 
     it 'Prefix conflict' do
       begin
+        ext2 = nil
         ext1 = AssOle::AppExtension::Plug.new(Env::IB).new_ext(ext_klass_8_3_10, false).write!
         e = proc {
-          ext2 = AssOle::AppExtension::Plug.new(Env::IB).new_ext(ext_klass_8_3_10_prefix_conflict, false).write!
+          ext2 = AssOle::AppExtension::Plug.new(Env::IB).new_ext(ext_klass_8_3_10_prefix_conflict, false).plug
         }.must_raise AssOle::AppExtension::ApplyError
 
         e.message.must_match %r{FIXME}

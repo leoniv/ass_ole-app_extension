@@ -219,7 +219,7 @@ module AssOle
         def can_apply?
           errors = apply_errors
           fail ApplyError, "Extension can't be applied:\n"\
-            " - #{errors.map(&:Description).join(" - \n")} " if\
+            " - #{errors.map(&:Description).join("\n - ")} " if\
             errors.size > 0
           true
         end
@@ -306,7 +306,7 @@ module AssOle
           req = app_requirements[app_name.to_sym]
 
           fail IncompatibleError, "Unsupported application `#{app_name}`."\
-            " Supported:\n - #{app_requirements.keys.join(' - ')}" unless req
+            " Supported:\n - #{app_requirements.keys.join("\n - ")}" unless req
 
           fail IncompatibleError, 'Unsupported application version'\
             " `#{app_version}`. Require version #{req}" unless\
