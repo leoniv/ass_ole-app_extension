@@ -121,14 +121,14 @@ module AssOle
         # @raise (see can_apply?)
         # @raise (see #verify!)
         def plug
-          return if exist?
+          return if plug?
           verify!
           can_apply? && unsafe_mode_set.Write(data)
           self
         end
         alias_method :write, :plug
 
-        # Force plug withowt {#verify!} and {#can_apply?}
+        # Force plug without {#verify!} and {#can_apply?}
         # @return [self]
         def plug!
           unsafe_mode_set.Write(data)
@@ -166,46 +166,57 @@ module AssOle
 
         # Critical +ConfigurationExtensionApplicationIssueInformation+.
         # If you have such problems, extension will not be connected.
-        # @return (see #apply_problems)
+        # @return [Array<WIN32OLE>]
+        #  +ConfigurationExtensionApplicationIssueInformation+
         def apply_errors
-          apply_problems.select do |problem|
-            sTring(problem.Severity) =~ %r{(Критичная|Critical)}
-          end
+          apply_errors_get(data)
         end
 
         # Not critical +ConfigurationExtensionApplicationIssueInformation+.
         # If you have such problems, extension will be connected.
-        # @return (see #apply_problems)
+        # @return (see #apply_errors)
         def apply_warnings
-          apply_problems.select do |problem|
+          apply_problems_get(data).select do |problem|
             (sTring(problem.Severity) =~ %r{(Критичная|Critical)}).nil?
           end
         end
 
-        # @return [Array<WIN32OLE>]
-        #  +ConfigurationExtensionApplicationIssueInformation+
-        def apply_problems
+        def apply_problems_get(ext_data)
           r = []
-          ole.CheckCanApply(data, false).each do |problem|
+          ole.CheckCanApply(ext_data, false).each do |problem|
             r << problem
           end
           r
         end
+        private :apply_problems_get
+
+        def apply_errors_get(ext_data)
+          apply_problems_get(ext_data).select do |problem|
+            sTring(problem.Severity) =~ %r{(Критичная|Critical)}
+          end
+        end
+        private :apply_problems_get
 
         # Checks the possibility plugging extension
         # @raise [RuntimeError] if {#apply_errors} isn't empty
         def can_apply?
-          apply_errors = apply_errors
+          errors = apply_errors
           fail "Extension can't be applied:\n"\
-            " - #{apply_errors.map(&:Description).join(' - ')} " if\
-            apply_errors.size > 0
+            " - #{errors.map(&:Description).join(' - ')} " if\
+            errors.size > 0
           true
         end
 
+        # Return +true+ if extension stored in infobase
         def exist?
           !find_exists.nil?
         end
-        alias_method :plugged?, :exist?
+
+        # Return +true+ if extension {#exists?} and stored data can be applyed
+        # without errors
+        def plugged?
+          exist? && apply_errors_get(ole.GetData).size > 0
+        end
 
         def find_exists
           r = all_extensions.select {|ext| ext.Name =~ /^#{name}$/i}
@@ -284,7 +295,81 @@ module AssOle
             " version #{req}" unless\
             Gem::Requirement.new.satisfied_by? app_version
         end
+
+        # Save actual stored extension data to file
+        # @param dir [String] directory where file will be writed
+        # @return [String] file name
+        def save_stored_data(dir)
+          file = File.join(dir, "#{name}.#{Gem::Version.new(ole.Version)}.cfu")
+          ole.GetData.Write(real_win_path(file))
+          file
+        end
       end
+    end
+
+    # Class for explore exists infobase extensions.
+    class Spy < Abstract::Extension
+      def initialize(ole_runtime, ole)
+        @ole_runtime = ole_runtime
+        @ole = ole
+      end
+
+      def ole_get
+        @ole
+      end
+      private :ole_get
+
+      # (see Abstract::Extension)
+      def ole
+        @ole
+      end
+
+      # Do nothing.
+      # @return [self]
+      def plug!
+        self
+      end
+
+      # Do nothing
+      # @return [self]
+      def unplug!
+        self
+      end
+
+      # Do nothing
+      # @return [self]
+      def verify!
+        self
+      end
+
+      # Return {#ole} +Name+ property
+      # @return [String]
+      def name
+        ole.Name
+      end
+
+      # Return {#ole} +GetData+
+      # @return [WIN32OLE] stored +BinaryData+
+      def data
+        ole.GetData
+      end
+
+      # @return ['~> 0'] permanent
+      def platform_require
+        Gem::Requirement.new '~> 0'
+      end
+
+      # @return [nil] permanent
+      def app_requirements
+        nil
+      end
+
+      # Do nothing.
+      # @return {#ole}
+      def unsafe_mode_set
+        ole
+      end
+      private :unsafe_mode_set
     end
 
     # @api private
@@ -298,16 +383,24 @@ module AssOle
         ole_runtime_get.run info_base
       end
 
+      # Make new +ext_klass+ plugged instance
+      # @api private
+      # @param safe_mode (see #new_ext)
+      # @param ext_klass (see #new_ext)
+      # @return (see Abstract::Extension#plug)
+      def exec(ext_klass, safe_mode)
+        new_ext(ext_klass, safe_mode).plug
+      end
+
+      # Make new +ext_klass+ instance
       # @api private
       # @param safe_mode
       #  (see AssOle::AppExtension::Abstract::Extension#initialize)
       # @param ext_klass [Class] childe of
       #  {AssOle::AppExtension::Abstract::Extension}
       # @return [ext_klass] instance
-      def exec(ext_klass, safe_mode)
-        ext = ext_klass.new(self, safe_mode)
-        ext.plug
-        ext
+      def new_ext(ext_klass, safe_mode)
+        ext_klass.new(self, safe_mode)
       end
 
       # @api private
@@ -335,6 +428,15 @@ module AssOle
     # @return (see Plug#exec)
     def self.plug(info_base, ext_klass, safe_mode = true)
       Plug.new(info_base).exec(ext_klass, safe_mode)
+    end
+
+    # Returns all extensions stored in +info_base+
+    # @return [Array<Spy>]
+    def self.all_extensions(info_base)
+      spy = Plug.new_ext(info_base, Spy, nil)
+      spy.all_extensions.map do |ole|
+        Spy.new(spy.ole_runtime, ole)
+      end
     end
   end
 end
