@@ -2,17 +2,31 @@ require "ass_ole/app_extension/version"
 
 module AssOle
   require 'ass_ole/snippets/shared'
+  # Provides features for hot plug a +ConfigurationExtension+ to 1C:Enterprise
+  # application instance (aka infobase) and some more.
+  # @example (see Abstract::Extension)
+  # @example (see Spy)
+  # @example Plug extension
+  #  require 'ass_maintainer/info_base'
+  #
+  #  # Describe 1C application instance
+  #  ib = AssMaintainer::InfoBase.new('app_name', 'File="path"')
+  #
+  #  extension = AssOle::AppExtension.plug(ib, FooExtension, 'safe profile name')
+  #
+  #  extension.plugged? # => true
   module AppExtension
     require 'ass_ole'
 
+    # Namespace for abstract things
     module Abstract
       # @note Docs for
       #  mixin
       #  {http://www.rubydoc.info/gems/ass_ole-snippets-shared/AssOle/Snippets/Shared/AppCompatibility AssOle::Snippets::Shared::AppCompatibility}
       #
       # Class parent for all extensions. Define your own class and
-      # override methods from {Extension::AbstractMethods}
-      # @example
+      # override methods from {Abstract::Extension::AbstractMethods}
+      # @example Define own extension class
       #  class FooExtension < AssOle::AppExtension::Abstract::Extension
       #
       #   def path
@@ -212,10 +226,10 @@ module AssOle
           !find_exists.nil?
         end
 
-        # Return +true+ if extension {#exists?} and stored data can be applyed
+        # Return +true+ if extension {#exist?} and stored data can be applyed
         # without errors
         def plugged?
-          exist? && apply_errors_get(ole.GetData).size > 0
+          exist? && apply_errors_get(ole.GetData).size == 0
         end
 
         def find_exists
@@ -308,7 +322,22 @@ module AssOle
     end
 
     # Class for explore exists infobase extensions.
+    # @example Explore infobase extensions
+    #  require 'ass_maintainer/info_base'
+    #
+    #  # Describe 1C application instance
+    #  ib = AssMaintainer::InfoBase.new('app_name', 'File="path"')
+    #
+    #  # Get all extensions and check all is plugged
+    #  AssOle::AppExtension::Spy.explore(ib).each do |spy|
+    #    logger.error "#{spy.name} isn't plugged because:\n - "\
+    #      "#{spy.apply_errors.map(&:Description).join(' - ')}"\
+    #      unless spy.plugged?
+    #  end
     class Spy < Abstract::Extension
+      # @param ole_runtime (see Abstract::Extension#initialize)
+      # @param ole [WIN32OLE] +ConfigurationExtension+ object
+      # @api private
       def initialize(ole_runtime, ole)
         @ole_runtime = ole_runtime
         @ole = ole
@@ -319,7 +348,7 @@ module AssOle
       end
       private :ole_get
 
-      # (see Abstract::Extension)
+      # (see Abstract::Extension#ole)
       def ole
         @ole
       end
@@ -370,6 +399,15 @@ module AssOle
         ole
       end
       private :unsafe_mode_set
+
+      # Returns all extensions stored in +info_base+
+      # @return [Array<Spy>]
+      def self.explore(info_base)
+        spy = Plug.new(info_base).new_ext(Spy, nil)
+        spy.all_extensions.map do |ole|
+          Spy.new(spy.ole_runtime, ole)
+        end
+      end
     end
 
     # @api private
@@ -428,15 +466,6 @@ module AssOle
     # @return (see Plug#exec)
     def self.plug(info_base, ext_klass, safe_mode = true)
       Plug.new(info_base).exec(ext_klass, safe_mode)
-    end
-
-    # Returns all extensions stored in +info_base+
-    # @return [Array<Spy>]
-    def self.all_extensions(info_base)
-      spy = Plug.new(info_base).new_ext(Spy, nil)
-      spy.all_extensions.map do |ole|
-        Spy.new(spy.ole_runtime, ole)
-      end
     end
   end
 end

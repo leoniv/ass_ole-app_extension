@@ -76,7 +76,7 @@ module AssOle::AppExtensionTest
           ext1 = AssOle::AppExtension::Plug.new(Env::IB).new_ext(ext_klass_8_3_10, false).write!
           ext2 = AssOle::AppExtension::Plug.new(Env::IB).new_ext(ext_klass_8_3_8, false).write!
 
-          actual = AssOle::AppExtension.all_extensions(Env::IB)
+          actual = AssOle::AppExtension::Spy.explore(Env::IB)
           actual.size.must_equal 2
 
           actual.each do |spy|
