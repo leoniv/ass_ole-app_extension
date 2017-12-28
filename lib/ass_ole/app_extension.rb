@@ -138,7 +138,7 @@ module AssOle
         # @raise (see can_apply?)
         # @raise (see #verify!)
         def plug
-          return if plugged?
+          return self if plugged?
           verify!
           can_apply? && unsafe_mode_set.Write(data)
           self
@@ -156,7 +156,7 @@ module AssOle
         # Unplug extension. Do nothing unless extension plugged.
         # @return [self]
         def unplug!
-          return unless exist?
+          return self unless exist?
           ole.Delete
           self
         end
