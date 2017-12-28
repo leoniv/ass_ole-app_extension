@@ -25,6 +25,8 @@ Or install it yourself as:
 1. Describe your extension
 
 ```ruby
+require 'ass_ole/app_extension'
+
 class FooExtension << AssOle::AppExtension::Abstract::Extension
 
   def path
@@ -62,8 +64,9 @@ end
 2. Plug extension
 
 ```ruby
-# Describe 1C application instance
+require 'ass_maintainer/info_base'
 
+# Describe 1C application instance
 ib = AssMaintainer::InfoBase.new('app_name', 'File="path"')
 
 extension = AssOle::AppExtension.plug(IB, FooExtension, 'safe profile name')
