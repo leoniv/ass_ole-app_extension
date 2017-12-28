@@ -1,8 +1,8 @@
 # AssOle::AppExtension
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/ass_ole/app_extension`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Gem for working with 1C:Enterprise `ConfigurationExtension`. Provides features
+for hot plug a `ConfigurationExtension` to 1C:Enterprise application
+instance (aka infobase) and some more.
 
 ## Installation
 
@@ -22,7 +22,54 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+1. Describe your extension
+
+```ruby
+class FooExtension << AssOle::AppExtension::Abstract::Extension
+
+  def path
+    File.expand_path '../foo_extension.cfe', __FILE__
+  end
+
+  # Override abstract method
+  # must retus WIN32OLE object(1C extension BinaryData)'
+  def data
+    newObject('BinaryData', real_win_path(path))
+  end
+
+  # Override abstract method
+  # must returns `Gem::Requirement` 1C platform version requirement
+  def platform_require
+    Gem::Requirement.new '~> 8.3.10'
+  end
+
+  # Override abstract method
+  # must returns `Hash` :1c_app_name => (Gem::Requirement|String '~> 1.2.4')
+  # or nil for independent extension
+  def app_requirements
+    {Accounting: '~> 3.0.56',
+     AccountingCorp: '~> 3.0.56'}
+  end
+
+  # Override abstract method
+  # must returns extension name
+  def name
+    'FooExtension'
+  end
+end
+```
+
+2. Plug extension
+
+```ruby
+# Describe 1C application instance
+
+ib = AssMaintainer::InfoBase.new('app_name', 'File="path"')
+
+extension = AssOle::AppExtension.plug(IB, FooExtension, 'safe profile name')
+
+extension.exist? # => true
+```
 
 ## Development
 
