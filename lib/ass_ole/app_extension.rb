@@ -121,14 +121,14 @@ module AssOle
         # @raise (see can_apply?)
         # @raise (see #verify!)
         def plug
-          return if plug?
+          return if plugged?
           verify!
           can_apply? && unsafe_mode_set.Write(data)
           self
         end
         alias_method :write, :plug
 
-        # Force plug without {#verify!} and {#can_apply?}
+        # Force plug without check {#plugged?}, {#verify!} and {#can_apply?}
         # @return [self]
         def plug!
           unsafe_mode_set.Write(data)
