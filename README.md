@@ -34,7 +34,7 @@ class FooExtension < AssOle::AppExtension::Abstract::Extension
   end
 
   # Override abstract method
-  # must retus WIN32OLE object(1C extension BinaryData)'
+  # must returns WIN32OLE object(1C extension BinaryData)'
   def data
     newObject('BinaryData', real_win_path(path))
   end
