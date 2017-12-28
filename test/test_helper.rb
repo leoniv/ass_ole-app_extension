@@ -1,4 +1,5 @@
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+require 'simplecov'
 require "ass_ole/app_extension"
 require 'ass_maintainer/info_base'
 

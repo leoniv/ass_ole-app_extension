@@ -433,7 +433,7 @@ module AssOle
     # Returns all extensions stored in +info_base+
     # @return [Array<Spy>]
     def self.all_extensions(info_base)
-      spy = Plug.new_ext(info_base, Spy, nil)
+      spy = Plug.new(info_base).new_ext(Spy, nil)
       spy.all_extensions.map do |ole|
         Spy.new(spy.ole_runtime, ole)
       end

@@ -59,16 +59,37 @@ module AssOle::AppExtensionTest
       end
 
       it '.plug' do
-        extension = AssOle::AppExtension.plug(Env::IB, ext_klass_8_3_10, false)
-        extension.exist?.must_equal true
-        extension.plugged?.must_equal true
-        extension.unplug!
-        extension.exist?.must_equal false
-        extension.plugged?.must_equal false
+        begin
+          extension = AssOle::AppExtension.plug(Env::IB, ext_klass_8_3_10, false)
+          extension.exist?.must_equal true
+          extension.plugged?.must_equal true
+          extension.unplug!
+          extension.exist?.must_equal false
+          extension.plugged?.must_equal false
+        ensure
+          extension.unplug! if extension
+        end
       end
 
       it '.all_extensions' do
-        ext_
+        begin
+          ext1 = AssOle::AppExtension::Plug.new(Env::IB).new_ext(ext_klass_8_3_10, false).write!
+          ext2 = AssOle::AppExtension::Plug.new(Env::IB).new_ext(ext_klass_8_3_8, false).write!
+
+          actual = AssOle::AppExtension.all_extensions(Env::IB)
+          actual.size.must_equal 2
+
+          actual.each do |spy|
+            spy.must_be_instanse AssOle::AppExtension::Spy
+            spy.exist?.must_equal true
+            spy.name.must_match %r{TestExt8_3_(10|8)}i
+            spy.plugged.must_equal true if spy.name =~ %r{TestExt8_3_10}i
+            spy.plugged.must_equal false if spy.name =~ %r{TestExt8_3_8}i
+          end
+        ensure
+          ext1.unplug! if ext1
+          ext2.unplug! if ext2
+        end
       end
     end
 
