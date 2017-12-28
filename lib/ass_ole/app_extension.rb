@@ -300,7 +300,7 @@ module AssOle
         def verify_application!
           return unless app_requirements
 
-          req = app_requirements[app_name]
+          req = app_requirements[app_name.to_sym]
 
           fail "Unsupported application `#{app_name}`. Supported: "\
             " - #{app_requirements.keys.join(' - ')}" unless req
