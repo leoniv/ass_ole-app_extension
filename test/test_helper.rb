@@ -10,6 +10,7 @@ module AssOle::AppExtensionTest
       FIXT_DIR = File.expand_path("../fixtures", __FILE__)
       EXT_8_3_8 = File.join(FIXT_DIR, '8_3_8.cfe')
       EXT_8_3_10 = File.join(FIXT_DIR, '8_3_10.cfe')
+      EXT_8_3_10_PREFIX_CONFLICT = File.join(FIXT_DIR, '8_3_10_prefix_conflict.cfe')
       TMP_DIR = Dir.tmpdir
 
       def self.make_ib(name, platform_require)

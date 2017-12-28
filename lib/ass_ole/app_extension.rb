@@ -18,6 +18,9 @@ module AssOle
   module AppExtension
     require 'ass_ole'
 
+    class ApplyError < StandardError; end
+    class IncompatibleError < StandardError; end
+
     # Namespace for abstract things
     module Abstract
       # @note Docs for
@@ -212,11 +215,11 @@ module AssOle
         private :apply_problems_get
 
         # Checks the possibility plugging extension
-        # @raise [RuntimeError] if {#apply_errors} isn't empty
+        # @raise [ApplyError] if {#apply_errors} isn't empty
         def can_apply?
           errors = apply_errors
-          fail "Extension can't be applied:\n"\
-            " - #{errors.map(&:Description).join(' - ')} " if\
+          fail ApplyError, "Extension can't be applied:\n"\
+            " - #{errors.map(&:Description).join(" - \n")} " if\
             errors.size > 0
           true
         end
@@ -271,7 +274,7 @@ module AssOle
           ole_runtime.ole_connector
         end
 
-        # @raise [RuntimeError] if extension is incompatible
+        # @raise [IncompatibleError] if extension is incompatible
         def verify!
           verify_version_compatibility!
           verify_application!
@@ -290,7 +293,7 @@ module AssOle
 
         # @api private
         def verify_version_compatibility!
-          fail ArgumentError, "Require application compatibility "\
+          fail IncompatibleError, "Require application compatibility "\
             "`#{platform_require}`. Got application compatibility version"\
             " `#{app_compatibility_version}`" unless\
             platform_require.satisfied_by? app_compatibility_version
@@ -302,11 +305,11 @@ module AssOle
 
           req = app_requirements[app_name.to_sym]
 
-          fail "Unsupported application `#{app_name}`. Supported: "\
-            " - #{app_requirements.keys.join(' - ')}" unless req
+          fail IncompatibleError, "Unsupported application `#{app_name}`."\
+            " Supported:\n - #{app_requirements.keys.join(' - ')}" unless req
 
-          fail "Unsupported application version `#{app_version}`. Require"\
-            " version #{req}" unless\
+          fail IncompatibleError, 'Unsupported application version'\
+            " `#{app_version}`. Require version #{req}" unless\
             Gem::Requirement.new.satisfied_by? app_version
         end
 
