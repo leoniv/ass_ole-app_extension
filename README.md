@@ -27,7 +27,7 @@ Or install it yourself as:
 ```ruby
 require 'ass_ole/app_extension'
 
-class FooExtension << AssOle::AppExtension::Abstract::Extension
+class FooExtension < AssOle::AppExtension::Abstract::Extension
 
   def path
     File.expand_path '../foo_extension.cfe', __FILE__
