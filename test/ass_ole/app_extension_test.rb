@@ -126,11 +126,7 @@ module AssOle::AppExtensionTest
           ext2 = AssOle::AppExtension::Plug.new(Env::IB).new_ext(ext_klass_8_3_10_prefix_conflict, false).plug
         }.must_raise AssOle::AppExtension::ApplyError
 
-        e.message.must_match %r{FIXME}
-
-        ext1.plugged? must_equal true
-        ext2.plugged? must_equal true
-
+        e.message.must_match %r{(Конфликт|Conflict)}i
       ensure
         ext1.unplug! if ext1
         ext2.unplug! if ext2
