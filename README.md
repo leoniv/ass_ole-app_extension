@@ -69,9 +69,9 @@ require 'ass_maintainer/info_base'
 # Describe 1C application instance
 ib = AssMaintainer::InfoBase.new('app_name', 'File="path"')
 
-extension = AssOle::AppExtension.plug(IB, FooExtension, 'safe profile name')
+extension = AssOle::AppExtension.plug(ib, FooExtension, 'safe profile name')
 
-extension.exist? # => true
+extension.plugged? # => true
 ```
 
 ## Development
