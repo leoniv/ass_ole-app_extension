@@ -1,3 +1,4 @@
+[![Gem Version](https://badge.fury.io/rb/ass_ole-app_extension.svg)](https://badge.fury.io/rb/ass_ole-app_extension)
 # AssOle::AppExtension
 
 Gem for working with 1C:Enterprise `ConfigurationExtension`. Provides features
