@@ -82,6 +82,22 @@ extension = AssOle::AppExtension.plug(ib, FooExtension, 'safe profile name')
 extension.plugged? # => true
 ```
 
+3. Or explore infobase extensions with `AssOle::AppExtension::Spy`
+
+```ruby
+require 'ass_maintainer/info_base'
+
+# Describe 1C application instance
+ib = AssMaintainer::InfoBase.new('app_name', 'File="path"')
+
+# Get all extensions and check all is plugged
+AssOle::AppExtension::Spy.explore(ib).each do |spy|
+  logger.error "#{spy.name} isn't plugged because:\n - "\
+    "#{spy.apply_errors.map(&:Description).join(' - ')}"\
+    unless spy.plugged?
+end
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
