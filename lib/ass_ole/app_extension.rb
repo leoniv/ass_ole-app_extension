@@ -330,7 +330,7 @@ module AssOle
 
           fail IncompatibleError, 'Unsupported application version'\
             " `#{app_version}`. Require version #{req}" unless\
-            Gem::Requirement.new.satisfied_by? app_version
+            Gem::Requirement.new(req).satisfied_by? app_version
         end
 
         # Save actual stored extension data to file
