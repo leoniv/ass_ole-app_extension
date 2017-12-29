@@ -449,7 +449,7 @@ module AssOle
       # @api private
       # @param safe_mode (see #new_ext)
       # @param ext_klass (see #new_ext)
-      # @return (see Abstract::Extension#plug)
+      # @return [ext_klass] instance
       def exec(ext_klass, safe_mode)
         new_ext(ext_klass, safe_mode).plug
       end
@@ -487,7 +487,7 @@ module AssOle
     # @param info_base (see Plug#initialize)
     # @param ext_klass (see Plug#exec)
     # @param safe_mode (see Plug#exec)
-    # @return (see Plug#exec)
+    # @return [ext_klass] instance
     def self.plug(info_base, ext_klass, safe_mode = true)
       Plug.new(info_base).exec(ext_klass, safe_mode)
     end
