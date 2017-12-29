@@ -29,6 +29,8 @@ require 'ass_ole/app_extension'
 
 class FooExtension < AssOle::AppExtension::Abstract::Extension
 
+  VERSION = '1.1.1'.freeze
+
   def path
     File.expand_path '../foo_extension.cfe', __FILE__
   end
@@ -57,6 +59,12 @@ class FooExtension < AssOle::AppExtension::Abstract::Extension
   # must returns extension name
   def name
     'FooExtension'
+  end
+
+  # Override abstract method
+  # must returns extension version
+  def name
+    VERSION
   end
 end
 ```

@@ -7,6 +7,49 @@ module AssOle::AppExtensionTest
     end
   end
 
+  describe ::AssOle::AppExtension::Abstract::Extension do
+    def klass
+      ::AssOle::AppExtension::Abstract::Extension
+    end
+
+    it 'Extension include AbstractMethods' do
+      klass.include?(::AssOle::AppExtension::Abstract::Extension::AbstractMethods).must_equal true
+    end
+
+    describe 'Abstract interface' do
+      def inst
+        @inst ||= klass.new(nil, nil)
+      end
+
+      def method_must_be_abstract(obj, method, *args)
+        e = proc {
+          obj.send(method, *args)
+        }.must_raise NotImplementedError
+        e.message.must_match %r{Abstract}i
+      end
+
+      it '#data must be Abstract' do
+        method_must_be_abstract(inst, :data)
+      end
+
+      it '#platform_require must be Abstract' do
+        method_must_be_abstract(inst, :platform_require)
+      end
+
+      it '#app_requirements must be Abstract' do
+        method_must_be_abstract(inst, :app_requirements)
+      end
+
+      it '#name must be Abstract' do
+        method_must_be_abstract(inst, :name)
+      end
+
+      it '#version must be Abstract' do
+        method_must_be_abstract(inst, :version)
+      end
+    end
+  end
+
   describe 'Smoky tests' do
     def ext_klass_8_3_10
       @ext_klass_8_3_10 ||= Class.new(AssOle::AppExtension::Abstract::Extension) do

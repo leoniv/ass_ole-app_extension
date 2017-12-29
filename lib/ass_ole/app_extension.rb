@@ -32,6 +32,8 @@ module AssOle
       # @example Define own extension class
       #  class FooExtension < AssOle::AppExtension::Abstract::Extension
       #
+      #   VERSION = '1.1.1'.freeze
+      #
       #   def path
       #     File.expand_path '../foo_extension.cfe', __FILE__
       #   end
@@ -61,6 +63,12 @@ module AssOle
       #   def name
       #     'FooExtension'
       #   end
+      #
+      #   # Override abstract method
+      #   # must returns extension version
+      #   def name
+      #     VERSION
+      #   end
       #  end
       # @abstract
       class Extension
@@ -80,7 +88,8 @@ module AssOle
           # @abstract
           # @return [WIN32OLE] object(1C extension BinaryData)
           def data
-            fail 'Abstract method must returns WIN32OLE object(1C extension BinaryData)'
+            fail NotImplementedError,
+              'Abstract method must returns WIN32OLE object(1C extension BinaryData)'
           end
 
           # Define platform version requirement
@@ -91,7 +100,8 @@ module AssOle
           # @abstract
           # @return [Gem::Requirement]
           def platform_require
-            fail 'Abstract method must returns `Gem::Requirement`'
+            fail NotImplementedError,
+              'Abstract method must returns `Gem::Requirement`'
           end
 
           # Define infobase configuration requirement
@@ -103,7 +113,8 @@ module AssOle
           # @return [Hash{:1c_app_name => Gem::Requirement,String} nil]
           #  +nil+ for independent extension
           def app_requirements
-            fail "Abstract method must returns `Hash`"\
+            fail NotImplementedError,
+              "Abstract method must returns `Hash`"\
               " :1c_app_name => (`Gem::Requirement`|String '~> 1.2.4')"\
               " or nil for independent extension"
           end
@@ -112,7 +123,16 @@ module AssOle
           # @abstract
           # @return [String] extension name
           def name
-            fail 'Abstract method must returns extension name'
+            fail NotImplementedError,
+              'Abstract method must returns extension name'
+          end
+
+          # Define extension version. Must match with extension metadata version!
+          # @abstract
+          # @return [String] extension version
+          def version
+            fail NotImplementedError,
+              'Abstract method must returns extension version'
           end
         end
 
@@ -317,7 +337,8 @@ module AssOle
         # @param dir [String] directory where file will be writed
         # @return [String] file name
         def save_stored_data(dir)
-          file = File.join(dir, "#{name}.#{Gem::Version.new(ole.Version)}.cfu")
+          return unless exist?
+          file = File.join(dir, "#{name}.#{Gem::Version.new(ole.Version)}.cfe")
           ole.GetData.Write(real_win_path(file))
           file
         end
