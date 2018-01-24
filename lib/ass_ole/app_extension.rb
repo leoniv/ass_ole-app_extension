@@ -66,7 +66,7 @@ module AssOle
       #
       #   # Override abstract method
       #   # must returns extension version
-      #   def name
+      #   def version
       #     VERSION
       #   end
       #  end

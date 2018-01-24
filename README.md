@@ -64,7 +64,7 @@ class FooExtension < AssOle::AppExtension::Abstract::Extension
 
   # Override abstract method
   # must returns extension version
-  def name
+  def version
     VERSION
   end
 end
