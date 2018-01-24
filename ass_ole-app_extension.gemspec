@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'ass_ole'
   spec.add_dependency 'ass_ole-snippets-shared', '~> 0.5'
-  spec.add_dependency "ass_maintainer-info_base"
+  spec.add_dependency "ass_maintainer-info_bases"
 
   spec.add_development_dependency "bundler", "~> 1.15"
   spec.add_development_dependency "rake", "~> 10.0"

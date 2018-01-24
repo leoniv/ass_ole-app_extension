@@ -13,6 +13,8 @@ module AssOle::AppExtensionTest
       EXT_8_3_10_PREFIX_CONFLICT = File.join(FIXT_DIR, '8_3_10_prefix_conflict.cfe')
       TMP_DIR = Dir.tmpdir
 
+      EXT_8_3_8_XML = File.join(FIXT_DIR, '8.3.8.xml.src')
+
       def self.make_ib(name, platform_require)
         AssMaintainer::InfoBase
           .new(name, cs_file(file: File.join(TMP_DIR, name)), false,
