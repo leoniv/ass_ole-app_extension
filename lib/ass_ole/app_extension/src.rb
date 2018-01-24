@@ -4,6 +4,7 @@ module AssOle
     # +.cfe+ file or +xml+ files
     module Src
       require 'ass_maintainer/info_bases/tmp_info_base'
+      # @abstract
       class Abstract
         include AssMaintainer::InfoBases::TmpInfoBase::Api
 
@@ -13,29 +14,28 @@ module AssOle
         # @param platform_require [String] requirement for 1C:Enterprise
         #  platform version
         def initialize(path, platform_require = '~> 8.3.8')
-          @path = validate_path(path)
+          path_set(path)
           @platform_require = platform_require
         end
 
-        def validate_path(path)
+        def path_set(path)
+          @path = path
           fail ArgumentError, "Path not exist: #{path}" unless File.exist? path
-          path
         end
-        private :validate_path
+        private :path_set
       end
 
-      # Extension's +xml+ files source
-      # @example
+      # Class for extension +xml+ files source
+      # @example Convert xml extension source to +.cfe+ binary file
       #  src = AssOle::AppExtension::Src::Xml.new('foo_ext/xml.src', '~> 8.3.9')
       #  src.to_binary('foo_ext.cfe') #=> 'foo_ext.cfe'
       class Xml < Abstract
-        def validate_path(path)
+        def path_set(path)
           super
           fail ArgumentError, "Invalid extension xml source: `#{path}'" unless\
-            File.file?(File.join(path, 'Configuration.xml'))
-          path
+            File.file? root_file
         end
-        private :validate_path
+        private :path_set
 
         # Build binary +.cfe+ file from +xml+ source
         # @param dest_path [String] +.cfe+ file path
@@ -56,10 +56,15 @@ module AssOle
           end
           dest_path
         end
+
+        # @return [String] path to +Configuration.xml+ root file
+        def root_file
+          File.join(path, 'Configuration.xml')
+        end
       end
 
-      # Extension's +.cfe+ binary files
-      # @example
+      # Class for extension +.cfe+ binary file
+      # @example Convert +.cfe+ extension binary file to xml files
       #  src = AssOle::AppExtension::Src::Cfe.new('foo_ext.cfe', '~> 8.3.9')
       #  src.to_xml('foo_ext/xml.src') #=> 'foo_ext/xml.src'
       class Cfe < Abstract
