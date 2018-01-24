@@ -57,7 +57,7 @@ module AssOle::AppExtensionTest
         e = proc {
           inst(File.expand_path('../fake_file',__FILE__))
         }.must_raise ArgumentError
-        e.message.must_match %r{extension must be a file}i
+        e.message.must_match %r{Path not exist}i
       end
 
       describe 'attributes' do
@@ -88,7 +88,8 @@ module AssOle::AppExtensionTest
       it 'success' do
         File.exist?(xml_path).must_equal false
         inst(Env::EXT_8_3_8).to_xml(xml_path).must_equal xml_path
-        File.directory?(xml_path).must_equal true
+        File.file?(File.join(xml_path, 'Configuration.xml'))
+          .must_equal true
       end
     end
   end

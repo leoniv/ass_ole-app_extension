@@ -99,6 +99,20 @@ AssOle::AppExtension::Spy.explore(ib).each do |spy|
 end
 ```
 
+4. Convert xml extension source to `.cfe` binary file
+
+```ruby
+src = AssOle::AppExtension::Src::Xml.new('foo_ext/xml.src', '~> 8.3.9')
+src.to_binary('foo_ext.cfe') #=> 'foo_ext.cfe'
+```
+
+5. Convert `.cfe` extension binary file to xml files
+
+```ruby
+src = AssOle::AppExtension::Src::Cfe.new('foo_ext.cfe', '~> 8.3.9')
+src.to_xml('foo_ext/xml.src') #=> 'foo_ext/xml.src'
+```
+
 ## Development
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.

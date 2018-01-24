@@ -491,5 +491,7 @@ module AssOle
     def self.plug(info_base, ext_klass, safe_mode = true)
       Plug.new(info_base).exec(ext_klass, safe_mode)
     end
+
+    require 'ass_ole/app_extension/src'
   end
 end
